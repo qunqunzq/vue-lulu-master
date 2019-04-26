@@ -3,8 +3,8 @@
  */
 
 export function isvalidUsername(str) {
-  const valid_map = ['admin', 'editor']
-  return valid_map.indexOf(str.trim()) >= 0
+  const reg  =  /^[\u4e00-\u9fa5]+$/
+  return  !reg.test(str.trim())
 }
 
 export function isExternal(path) {

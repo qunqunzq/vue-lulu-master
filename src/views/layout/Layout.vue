@@ -6,6 +6,7 @@
       <navbar/>
       <app-main/>
     </div>
+
   </div>
 </template>
 
