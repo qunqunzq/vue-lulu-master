@@ -67,7 +67,15 @@ a:hover {
     height: 0;
   }
 }
+.filter-container {
+  padding-bottom: 10px;
 
+  .filter-item {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+}
 //main-container全局样式
 .app-main {
   min-height: 100%

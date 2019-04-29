@@ -1,4 +1,6 @@
 <template>
+  <div :class="{'has-logo':showLogo}">
+    <logo v-if="showLogo" :collapse="isCollapse" />
   <el-scrollbar wrap-class="scrollbar-wrapper">
     <el-menu
       :default-active="$route.path"
@@ -12,15 +14,17 @@
       <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path"/>
     </el-menu>
   </el-scrollbar>
+  </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import Logo from './Logo'
 import variables from '@/styles/variables.scss'
 import SidebarItem from './SidebarItem'
 
 export default {
-  components: { SidebarItem },
+  components: { SidebarItem,Logo },
   computed: {
     ...mapGetters([
       'sidebar'
@@ -30,6 +34,10 @@ export default {
     },
     variables() {
       return variables
+    },
+    showLogo() {
+      return true
+    //  return this.$store.state.settings.sidebarLogo
     },
     isCollapse() {
       return !this.sidebar.opened

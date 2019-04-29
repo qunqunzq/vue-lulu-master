@@ -41,7 +41,11 @@
     .is-horizontal {
       display: none;
     }
-
+    &.has-logo {
+      .el-scrollbar {
+        height: calc(100% - 50px);
+      }
+    }
     a {
       display: inline-block;
       width: 100%;

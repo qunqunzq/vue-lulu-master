@@ -43,20 +43,26 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/example/table',
     name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    meta: { title: '图片管理', icon: 'example' },
     children: [
       {
         path: 'table',
         name: 'Table',
         component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        meta: { title: '图片列表', icon: 'table' }
+      },
+      {
+        path: 'complex-table',
+        name: 'complexTable',
+        component: () => import('@/views/table/complex-table'),
+        meta: { title: '综合列表', icon: 'tree' }
       },
       {
         path: 'tree',
         name: 'Tree',
         component: () => import('@/views/tree/index'),
         meta: { title: 'Tree', icon: 'tree' }
-      }
+      },
     ]
   },
 
@@ -68,12 +74,12 @@ export const constantRouterMap = [
         path: 'index',
         name: 'Form',
         component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        meta: { title: '图片上传', icon: 'form' }
       }
     ]
   },
 
-  {
+ /* {
     path: '/nested',
     component: Layout,
     redirect: '/nested/menu1',
@@ -129,9 +135,9 @@ export const constantRouterMap = [
         meta: { title: 'menu2' }
       }
     ]
-  },
+  },*/
 
-  {
+ /* {
     path: 'external-link',
     component: Layout,
     children: [
@@ -140,7 +146,7 @@ export const constantRouterMap = [
         meta: { title: 'External Link', icon: 'link' }
       }
     ]
-  },
+  },*/
 
   { path: '*', redirect: '/404', hidden: true }
 ]
