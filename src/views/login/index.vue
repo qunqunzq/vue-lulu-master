@@ -174,6 +174,7 @@ $light_gray:#eee;
     display: inline-block;
   }
   .title {
+    letter-spacing:4px;
     font-size: 26px;
     font-weight: 400;
     color: $light_gray;

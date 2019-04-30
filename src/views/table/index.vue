@@ -51,29 +51,85 @@
         </template>
       </el-table-column>
     </el-table>
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+
+    <el-dialog
+      title="Create"
+      :visible.sync="dialogVisible"
+      >
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="类别"  prop="name">
+          <el-select v-model="temp.status" class="filter-item" placeholder="请选择类别">
+            <el-option v-for="item in statusOptions"  :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="名称"  prop="name">
+          <el-input v-model="temp.name" />
+        </el-form-item>
+        <el-form-item label="标题"  prop="title">
+          <el-input v-model="temp.title" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">
+         取消
+        </el-button>
+        <el-button type="primary" @click="createData()">
+         提交
+        </el-button>
+      </div>
+
+    </el-dialog>
+
+
   </div>
 </template>
 
 <script>
 import { getList } from '@/api/table'
+import Pagination from '@/components/Pagination'
 
 export default {
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'gray',
-        deleted: 'danger'
-      }
-      return statusMap[status]
-    }
-  },
+  components: { Pagination },
   data() {
     return {
+      dialogVisible:false,
+      total:20,
       listQuery:{},
       list: null,
       listLoading: true,
-      importanceOptions:['婚礼','写真','产品','小姐姐']
+      importanceOptions:['婚礼','写真','产品','小姐姐'],
+      temp: {
+        id: undefined,
+        importance: 1,
+        remark: '',
+        timestamp: new Date(),
+        title: '',
+        type: '',
+        status: ''
+      },
+      rules: {
+        name: [{ required: true, message: '请填写名称', trigger: 'blur' }],
+        title: [{ required: true, message: '请填写描述', trigger: 'blur' }]
+      },
+      statusOptions: [
+        {
+          label: '婚礼',
+          value: 0,
+        },
+        {
+          label: '写真',
+          value: 1,
+        },
+        {
+          label: '产品',
+          value: 2,
+        },
+        {
+          label: '小姐姐',
+          value: 3,
+        }
+      ],
     }
   },
   created() {
@@ -86,7 +142,7 @@ export default {
     },
     //添加
     handleCreate(){
-
+    this.dialogVisible = true
     },
     fetchData() {
       this.listLoading = true
@@ -94,6 +150,10 @@ export default {
         this.list = response.data.items
         this.listLoading = false
       })
+    },
+    //添加
+    createData(){
+
     }
   }
 }
