@@ -91,6 +91,9 @@ export default {
             method: 'post',
             url: this.HOST + '/authentication/form',
             data: this.loginForm,
+            headers:{
+              'Content-Type':'application/x-www-form-urlencoded'
+            },
             auth: {
               username: 'qun',
               password: 'qunsecret'

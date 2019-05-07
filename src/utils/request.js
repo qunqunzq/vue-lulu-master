@@ -4,7 +4,7 @@ import store from '../store'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
 
-axios.defaults.headers["Content-Type"] = "application/x-www-form-urlencoded";
+axios.defaults.headers["Content-Type"] = "application/json";
 // 创建axios实例
 const service = axios.create({
   baseURL: '', // api 的 base_url

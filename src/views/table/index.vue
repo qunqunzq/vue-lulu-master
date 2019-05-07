@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-input v-model="listQuery.title" placeholder="描叙" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.importance" placeholder="类型选择" clearable style="width: 140px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
+        <el-option v-for="item in importanceOptions" :key="item" :label="item.label" :value="item.value" />
       </el-select>
       <el-button v-waves class="filter-item" style="margin-left: 30px" type="primary" icon="el-icon-search" @click="handleFilter">
           搜索
@@ -59,7 +59,7 @@
       >
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
         <el-form-item label="类别"  prop="name">
-          <el-select v-model="temp.status" class="filter-item" placeholder="请选择类别">
+          <el-select v-model="temp.baseSort" class="filter-item" placeholder="请选择类别">
             <el-option v-for="item in statusOptions"  :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -98,19 +98,34 @@ export default {
       listQuery:{},
       list: null,
       listLoading: true,
-      importanceOptions:['婚礼','写真','产品','小姐姐'],
+      importanceOptions: [
+        {
+          label: '婚礼',
+          value: 0,
+        },
+        {
+          label: '写真',
+          value: 1,
+        },
+        {
+          label: '产品',
+          value: 2,
+        },
+        {
+          label: '小姐姐',
+          value: 3,
+        }
+      ],
       temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
+        baseSort:'',
+        name:'',
         title: '',
-        type: '',
-        status: ''
+        userId:this.$store.state.user.userId
       },
       rules: {
         name: [{ required: true, message: '请填写名称', trigger: 'blur' }],
-        title: [{ required: true, message: '请填写描述', trigger: 'blur' }]
+        title: [{ required: true, message: '请填写描述', trigger: 'blur' }],
+        baseSort: [{ required: true, message: '请选择大类', trigger: 'blur' }]
       },
       statusOptions: [
         {
@@ -153,8 +168,20 @@ export default {
     },
     //添加
     createData(){
-
-    }
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.$axios.post(this.HOST + "/kantu/creatBaseAlbum",this.temp)
+            .then(res => {
+              alert(res.msg);
+            }).catch(error =>{
+            this.$message.error('保存异常');
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
   }
 }
 </script>
