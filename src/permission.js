@@ -15,8 +15,8 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' }) //这里的意思是登录了不能重复登录 要退出
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
-      if (store.getters.roles.length === 0) {
-        store.dispatch('GetInfo').then(res => { // 拉取用户信息
+      if (store.getters.userId === '') {
+        store.dispatch('GetInfo').then(res => {// 拉取用户信息
           next()
         }).catch((err) => {
           store.dispatch('FedLogOut').then(() => {
@@ -29,6 +29,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
+
     if (whiteList.indexOf(to.path) !== -1) {
       next()
     } else {

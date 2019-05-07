@@ -31,6 +31,7 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/dashboard',
     name: 'Dashboard',
+    hidden: true,
     meta:{ title:'主页',icon:'dashboard' },
     children: [{
       path: 'dashboard',
@@ -56,12 +57,6 @@ export const constantRouterMap = [
         name: 'complexTable',
         component: () => import('@/views/table/complex-table'),
         meta: { title: '综合列表', icon: 'tree' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
       },
     ]
   },

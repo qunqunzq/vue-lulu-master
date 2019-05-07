@@ -22,6 +22,12 @@ export default {
     AppMain
   },
   mixins: [ResizeMixin],
+  data() {
+    return{
+
+
+    }
+  },
   computed: {
     sidebar() {
       return this.$store.state.app.sidebar

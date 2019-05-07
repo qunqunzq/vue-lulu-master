@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'vue_admin_template_token'
+const TokenKey = 'TokenKey'
+const RefreshToken = "RefreshToken"
 
 export function getToken() {
   return Cookies.get(TokenKey)
@@ -12,4 +13,11 @@ export function setToken(token) {
 
 export function removeToken() {
   return Cookies.remove(TokenKey)
+}
+
+export function getRefreshToken() {
+  return Cookies.get(RefreshToken)
+}
+export function setRefreshToken(token) {
+  return Cookies.set(RefreshToken, token,{ expires: 7 })
 }

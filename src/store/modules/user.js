@@ -1,12 +1,14 @@
-import { login, logout, getInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { logout, getInfo } from '@/api/login'
+import { getToken,setToken, removeToken,setRefreshToken } from '@/utils/auth'
 
 const user = {
   state: {
     token: getToken(),
     name: '',
-    avatar: '',
-    roles: []
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    roles: '',
+    refresh_token:'',
+    userId:'',
   },
 
   mutations: {
@@ -21,22 +23,25 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_REFRESH_TOKEN: (state,refreshToken) => {
+      state.refresh_token = refreshToken
+    },
+    SET_USER_ID: (state,userId) => {
+      state.userId = userId
     }
   },
 
   actions: {
     // 登录
-    Login({ commit }, userInfo) {
-      const username = userInfo.username.trim()
-      return new Promise((resolve, reject) => {
-        login(username, userInfo.password).then(response => {
-          const data = response.data
-          setToken(data.token)
-          commit('SET_TOKEN', data.token)
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
+    Login({ commit }, loginInfo) {
+      return new Promise((resolve) => {
+        const data = loginInfo
+        setToken(data.access_token)
+        setRefreshToken(data.refresh_token)
+        commit('SET_TOKEN', data.access_token)
+        commit('SET_REFRESH_TOKEN', data.refresh_token)
+        resolve()
       })
     },
 
@@ -44,14 +49,10 @@ const user = {
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(response => {
-          const data = response.data
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
-          } else {
-            reject('getInfo: roles must be a non-null array !')
-          }
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
+          const data = response
+          commit('SET_ROLES', data.roles)
+          commit('SET_NAME', data.username)
+          commit('SET_USER_ID', data.id)
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -64,7 +65,8 @@ const user = {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
+          commit('SET_ROLES', '')
+          commit('SET_USER_ID', '')
           removeToken()
           resolve()
         }).catch(error => {
