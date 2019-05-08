@@ -1,5 +1,5 @@
 import { logout, getInfo } from '@/api/login'
-import { getToken,setToken, removeToken,setRefreshToken } from '@/utils/auth'
+import { getToken,setToken, removeToken,setRefreshToken,removeRefreshToken } from '@/utils/auth'
 
 const user = {
   state: {
@@ -44,6 +44,13 @@ const user = {
         resolve()
       })
     },
+    //刷新token
+    refreshToke({ commit }, data){
+      setToken(data.access_token)
+      setRefreshToken(data.refresh_token)
+      commit('SET_TOKEN', data.access_token)
+      commit('SET_REFRESH_TOKEN', data.refresh_token)
+    },
 
     // 获取用户信息
     GetInfo({ commit, state }) {
@@ -59,15 +66,16 @@ const user = {
         })
       })
     },
-
     // 登出
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', '')
+          commit('SET_REFRESH_TOKEN','')
           commit('SET_USER_ID', '')
           removeToken()
+          removeRefreshToken()
           resolve()
         }).catch(error => {
           reject(error)

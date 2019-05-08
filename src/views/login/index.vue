@@ -34,7 +34,7 @@
 
 <script>
 import { isvalidUsername } from '@/utils/validate'
-
+import qs from 'qs'
 export default {
   name: 'Login',
   data() {
@@ -90,7 +90,7 @@ export default {
           this.$axios({
             method: 'post',
             url: this.HOST + '/authentication/form',
-            data: this.loginForm,
+            data: qs.stringify(this.loginForm),
             headers:{
               'Content-Type':'application/x-www-form-urlencoded'
             },
@@ -99,7 +99,7 @@ export default {
               password: 'qunsecret'
             }
           }).then(res => {
-            this.$store.dispatch('Login', res).then(() => {
+            this.$store.dispatch('Login', res.data).then(() => {
               this.loading = false
               this.$router.push({ path:'/' })
             }).catch(() => {

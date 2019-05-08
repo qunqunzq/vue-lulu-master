@@ -172,7 +172,8 @@ export default {
         if (valid) {
           this.$axios.post(this.HOST + "/kantu/creatBaseAlbum",this.temp)
             .then(res => {
-              alert(res.msg);
+              this.$message.success('保存成功');
+              this.dialogVisible = false
             }).catch(error =>{
             this.$message.error('保存异常');
           })

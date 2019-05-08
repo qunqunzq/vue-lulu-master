@@ -18,6 +18,11 @@ export function removeToken() {
 export function getRefreshToken() {
   return Cookies.get(RefreshToken)
 }
+
 export function setRefreshToken(token) {
   return Cookies.set(RefreshToken, token,{ expires: 7 })
+}
+
+export function removeRefreshToken(token) {
+  return Cookies.remove(RefreshToken)
 }
