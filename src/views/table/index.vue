@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.title" placeholder="描叙" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.importance" placeholder="类型选择" clearable style="width: 140px" class="filter-item">
+      <el-select v-model="listQuery.baseSort" placeholder="类型选择" clearable style="width: 140px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item.label" :value="item.value" />
       </el-select>
       <el-button v-waves class="filter-item" style="margin-left: 30px" type="primary" icon="el-icon-search" @click="handleFilter">
@@ -13,13 +13,43 @@
       </el-button>
     </div>
     <el-table
-      v-loading="listLoading"
       :data="list"
       element-loading-text="Loading"
       border
       fit
       highlight-current-row>
-      <el-table-column align="center" label="ID" width="95">
+      <el-table-column
+        align="center"
+        prop="id"
+        label="id"
+        width="95"
+         >
+      </el-table-column>
+      <el-table-column
+        align="center"
+        prop="name"
+        label="名称"
+         >
+      </el-table-column>
+      <el-table-column
+        align="center"
+        prop="title"
+        label="描述"
+        >
+      </el-table-column>
+      <el-table-column
+        align="center"
+        prop="create_time"
+        label="创建时间"
+         >
+      </el-table-column>
+      <el-table-column
+        align="center"
+        prop="base_sort"
+        label="大类"
+         >
+      </el-table-column>
+     <!-- <el-table-column align="center" label="ID" width="95">
         <template slot-scope="scope">
           {{ scope.$index }}
         </template>
@@ -49,9 +79,12 @@
           <i class="el-icon-time"/>
           <span>{{ scope.row.display_time }}</span>
         </template>
-      </el-table-column>
+      </el-table-column>-->
+
+
+
     </el-table>
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination  :total="total"   @pagination="getList" />
 
     <el-dialog
       title="Create"
@@ -86,7 +119,6 @@
 </template>
 
 <script>
-import { getList } from '@/api/table'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -94,10 +126,14 @@ export default {
   data() {
     return {
       dialogVisible:false,
-      total:20,
-      listQuery:{},
-      list: null,
-      listLoading: true,
+      total:0,
+      listQuery:{
+        title:'',
+        baseSort:'',
+        pageSizes:20,
+        currentPage:0,
+      },
+      list: [],
       importanceOptions: [
         {
           label: '婚礼',
@@ -148,23 +184,29 @@ export default {
     }
   },
   created() {
-    this.fetchData()
+    this.getList()
   },
   methods: {
-    //查询
+    //搜索
     handleFilter(){
-
+      this.getList()
     },
     //添加
     handleCreate(){
     this.dialogVisible = true
     },
-    fetchData() {
-      this.listLoading = true
-      getList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.listLoading = false
-      })
+    getList(data) {
+      if(data){
+        this.listQuery.pageSizes = data.limit
+        this.listQuery.currentPage = (data.page - 1) * data.limit
+      }
+      this.$axios.post(this.HOST+"/kantu/listBaseAlbum",this.listQuery)
+        .then(res =>{
+          let data = res.data
+          this.list = data.list
+          this.total = data.total
+        })
+
     },
     //添加
     createData(){
