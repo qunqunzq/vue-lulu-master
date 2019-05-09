@@ -1,11 +1,12 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" placeholder="描叙" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.baseSort" placeholder="类型选择" clearable style="width: 140px" class="filter-item">
+      <el-input v-model="listQuery.title" placeholder="描叙" style="width: 200px;" class="filter-item" />
+      <el-select @change="selectChange"  v-model="listQuery.baseSort" placeholder="类型选择" clearable style="width: 140px" class="filter-item">
+        <el-option label="请选择" value="0"></el-option>
         <el-option v-for="item in importanceOptions" :key="item" :label="item.label" :value="item.value" />
       </el-select>
-      <el-button v-waves class="filter-item" style="margin-left: 30px" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-button v-waves class="filter-item" style="margin-left: 30px" type="primary" icon="el-icon-search" @click="handlegetList">
           搜索
       </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
@@ -19,11 +20,9 @@
       fit
       highlight-current-row>
       <el-table-column
-        align="center"
-        prop="id"
-        label="id"
-        width="95"
-         >
+        type="index"
+        width="50"
+        align="center">
       </el-table-column>
       <el-table-column
         align="center"
@@ -49,6 +48,7 @@
         label="大类"
          >
       </el-table-column>
+
      <!-- <el-table-column align="center" label="ID" width="95">
         <template slot-scope="scope">
           {{ scope.$index }}
@@ -84,7 +84,7 @@
 
 
     </el-table>
-    <pagination  :total="total"   @pagination="getList" />
+    <pagination  :total="total"  :page.sync="currentPage" :limit.sync="pageSizes"  @pagination="getList" />
 
     <el-dialog
       title="Create"
@@ -133,23 +133,25 @@ export default {
         pageSizes:20,
         currentPage:0,
       },
+      pageSizes:20,
+      currentPage:1,
       list: [],
       importanceOptions: [
         {
           label: '婚礼',
-          value: 0,
-        },
-        {
-          label: '写真',
           value: 1,
         },
         {
-          label: '产品',
+          label: '写真',
           value: 2,
         },
         {
-          label: '小姐姐',
+          label: '产品',
           value: 3,
+        },
+        {
+          label: '小姐姐',
+          value: 4,
         }
       ],
       temp: {
@@ -166,19 +168,19 @@ export default {
       statusOptions: [
         {
           label: '婚礼',
-          value: 0,
-        },
-        {
-          label: '写真',
           value: 1,
         },
         {
-          label: '产品',
+          label: '写真',
           value: 2,
         },
         {
-          label: '小姐姐',
+          label: '产品',
           value: 3,
+        },
+        {
+          label: '小姐姐',
+          value: 4,
         }
       ],
     }
@@ -187,14 +189,29 @@ export default {
     this.getList()
   },
   methods: {
-    //搜索
-    handleFilter(){
-      this.getList()
+    selectChange(){
+      this.currentPage = 1
+      this.handlegetList()
     },
+
     //添加
     handleCreate(){
     this.dialogVisible = true
     },
+
+    //搜索
+    handlegetList(){
+      this.listQuery.pageSizes = this.pageSizes
+      this.listQuery.currentPage = (this.currentPage -1) * this.pageSizes
+
+      this.$axios.post(this.HOST+"/kantu/listBaseAlbum",this.listQuery)
+        .then(res =>{
+          let data = res.data
+          this.list = data.list
+          this.total = data.total
+        })
+    },
+    //分页搜索
     getList(data) {
       if(data){
         this.listQuery.pageSizes = data.limit
