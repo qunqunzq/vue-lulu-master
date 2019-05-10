@@ -41,22 +41,20 @@
         prop="img_src"
         label="主图"
       >
-        <template slot-scope="scope">
+        <template slot-scope="{row}">
           <el-upload
-            :data="{'id':scope.row.id}"
+            :data="{'id':row.id}"
             class="avatar-uploader"
             action="/api/kantu/uploadZhuImage"
             :headers = "headers"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="'http://localhost:6060/232.jpg'" :src="'http://localhost:6060/232.jpg'" class="avatar">
+            <img v-if="'http://localhost:6060/'+ row.id+'//'+ row.img_src" :src="'http://localhost:6060/'+ row.id +'//'+ row.img_src" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </template>
       </el-table-column>
-
-
       <el-table-column
         align="center"
         prop="create_time"
@@ -65,44 +63,47 @@
       </el-table-column>
       <el-table-column
         align="center"
+        prop="is_show"
+        label="是否上架"
+      >
+        <template slot-scope="scope">
+          <el-button   type="success" v-if="scope.row.is_show" size="mini" >
+            已上架
+          </el-button>
+          <el-button v-else  type="info"  size="mini" >
+            已下架
+          </el-button>
+        </template>
+      </el-table-column>
+      <el-table-column
+        align="center"
         prop="base_sort"
         label="大类"
          >
       </el-table-column>
+      <el-table-column
+        align="center"
+        label="操作">
+        <template slot-scope="{row}">
 
-     <!-- <el-table-column align="center" label="ID" width="95">
-        <template slot-scope="scope">
-          {{ scope.$index }}
-        </template>
-      </el-table-column>
-      <el-table-column label="Title">
-        <template slot-scope="scope">
-          {{ scope.row.title }}
-        </template>
-      </el-table-column>
-      <el-table-column label="Author" width="110" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Pageviews" width="110" align="center">
-        <template slot-scope="scope">
-          {{ scope.row.pageviews }}
-        </template>
-      </el-table-column>
-      <el-table-column class-name="status-col" label="Status" width="110" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="created_at" label="Display_time" width="200">
-        <template slot-scope="scope">
-          <i class="el-icon-time"/>
-          <span>{{ scope.row.display_time }}</span>
-        </template>
-      </el-table-column>-->
+          <el-button  style="margin-top: 10px" type="primary" size="mini" @click="editRow(row)">
+            编辑
+          </el-button>
+          <el-button  style="margin-top: 10px" type="primary" v-if="row.status!='published'" @click="uploadImages(row)" size="mini"   >
+            上传图片
+          </el-button>
+          <el-button type="success"  style="margin-top: 10px" v-if="row.status!='draft'"   @click="putaway(row)" size="mini"  >
+           上架
+          </el-button>
+          <el-button   type="info" style="margin-top: 10px" v-if="row.status!='draft'" @click="soldOut(row)" size="mini" >
+            下架
+          </el-button>
+          <el-button  style="margin-top: 10px" v-if="row.status!='deleted'" @click="removeData(row)" size="mini" type="danger"  >
+            删除
+          </el-button>
 
-
+        </template>
+      </el-table-column>
 
     </el-table>
     <pagination  :total="total"  :page.sync="currentPage" :limit.sync="pageSizes"  @pagination="getList" />
@@ -132,7 +133,34 @@
          提交
         </el-button>
       </div>
+    </el-dialog>
 
+    <el-dialog
+      title="编辑"
+      :visible.sync="bianjiDialog"
+    >
+      <el-form ref="editForm" :rules="editRules" :model="editTemp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="名称"  prop="name">
+          <el-input v-model="editTemp.name" />
+        </el-form-item>
+        <el-form-item label="标题"  prop="title">
+          <el-input v-model="editTemp.title" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="bianjiDialog = false">
+          取消
+        </el-button>
+        <el-button type="primary" @click="editData()">
+          提交
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="上传图片"
+      :visible.sync="uploadImageDialog"
+    >
+      <UploadImage  v-if="uploadImageDialog" :ablumId="ablumId"></UploadImage>
     </el-dialog>
 
 
@@ -142,22 +170,25 @@
 <script>
 import Pagination from '@/components/Pagination'
 import { getToken } from '@/utils/auth'
+import UploadImage from '@/components/UploadImage'
 export default {
-  components: { Pagination },
+  components: {UploadImage, Pagination },
   data() {
     return {
-      imageUrl: 'http://localhost:6060/232.jpg',
+      bianjiDialog:false,
+      dialogVisible:false,
+      uploadImageDialog:false,
+      ablumId:null,
       headers:{
         "Authorization": 'Bearer '+getToken()
       },
-      dialogVisible:false,
-      total:0,
       listQuery:{
         title:'',
         baseSort:'',
         pageSizes:20,
         currentPage:0,
       },
+      total:0,
       pageSizes:20,
       currentPage:1,
       list: [],
@@ -185,10 +216,15 @@ export default {
         title: '',
         userId:this.$store.state.user.userId
       },
+      editTemp: {},
       rules: {
         name: [{ required: true, message: '请填写名称', trigger: 'blur' }],
         title: [{ required: true, message: '请填写描述', trigger: 'blur' }],
         baseSort: [{ required: true, message: '请选择大类', trigger: 'blur' }]
+      },
+      editRules: {
+        name: [{ required: true, message: '请填写名称', trigger: 'blur' }],
+        title: [{ required: true, message: '请填写描述', trigger: 'blur' }],
       },
       statusOptions: [
         {
@@ -214,6 +250,64 @@ export default {
     this.getList()
   },
   methods: {
+    //上传明细图片
+    uploadImages(data){
+      this.uploadImageDialog =true
+      this.ablumId = data.id
+    },
+    //删除
+    removeData(data){
+      this.editTemp = {}
+      this.editTemp.id = data.id
+      this.editTemp.delete= true
+      this.updateBaseAlbum()
+    },
+    //下架
+    soldOut(data){
+      this.editTemp = {}
+      this.editTemp.id = data.id
+      this.editTemp.show= false
+      this.updateBaseAlbum()
+    },
+    //上架
+    putaway(data){
+      this.editTemp = {}
+      this.editTemp.id = data.id
+      this.editTemp.show= true
+      this.updateBaseAlbum()
+    },
+    //打开编辑页面
+    editRow(data){
+      this.bianjiDialog = true
+      this.editTemp = {}
+      this.editTemp.id = data.id
+      this.editTemp.name= data.name
+      this.editTemp.title= data.title
+    },
+    //编辑提交数据
+    editData(){
+      this.$refs['editForm'].validate((valid) => {
+        if (valid) {
+          this.$axios.post(this.HOST + "/kantu/updateBaseAlbum",this.editTemp)
+            .then(res => {
+              let resData = res.data
+              if(resData.success){
+                this.$message.success(resData.msg)
+                this.handlegetList()
+              }else {
+                this.$message.error(resData.msg)
+              }
+              this.bianjiDialog = false
+            }).catch(error =>{
+            this.$message.error('保存异常');
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    //选择大类时查询
     selectChange(){
       this.currentPage = 1
       this.handlegetList()
@@ -267,10 +361,22 @@ export default {
         }
       });
     },
-
+    updateBaseAlbum(){
+      this.$axios.post(this.HOST + "/kantu/updateBaseAlbum",this.editTemp)
+        .then(res => {
+          let resData = res.data
+          if(resData.success){
+            this.$message.success(resData.msg)
+            this.handlegetList()
+          }else {
+            this.$message.error(resData.msg)
+          }
+        }).catch(error =>{
+        this.$message.error('保存异常');
+      })
+    },
     handleAvatarSuccess(res, file) {
-
-
+      this.getList();
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg';
