@@ -46,7 +46,7 @@ export default {
             var obj = new Object()
             obj.id = resData[i].id
             obj.name = resData[i].img_src
-            obj.url = 'http://localhost:6060/'+ this.ablumId+'/'+resData[i].img_src
+            obj.url = 'http://www.qunzq.com:6060/'+ this.ablumId+'/'+resData[i].img_src
             this.fileList2.push(obj)
           }
         }).catch(error =>{
