@@ -50,7 +50,7 @@
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="'http://www.qunzq.com:6060/'+ row.id+'/'+ row.img_src" :src="'http://www.qunzq.com:6060/'+ row.id +'/'+ row.img_src" class="avatar">
+            <img v-if="'https://www.yushuangsheng.com:6060/'+ row.id+'/'+ row.img_src" :src="'https://www.yushuangsheng.com:6060/'+ row.id +'/'+ row.img_src" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </template>
