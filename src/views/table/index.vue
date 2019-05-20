@@ -6,6 +6,10 @@
         <el-option label="请选择" value="0"></el-option>
         <el-option v-for="item in importanceOptions" :key="item" :label="item.label" :value="item.value" />
       </el-select>
+      <el-select @change="selectChange"  v-model="listQuery.show" placeholder="上下架" clearable style="width: 140px" class="filter-item">
+        <el-option label="请选择" value="null"></el-option>
+        <el-option v-for="item in isShow" :key="item" :label="item.label" :value="item.value" />
+      </el-select>
       <el-button v-waves class="filter-item" style="margin-left: 30px" type="primary" icon="el-icon-search" @click="handlegetList">
           搜索
       </el-button>
@@ -187,11 +191,22 @@ export default {
         baseSort:'',
         pageSizes:20,
         currentPage:0,
+        show:null,
       },
       total:0,
       pageSizes:20,
       currentPage:1,
       list: [],
+      isShow:[
+        {
+          label: "下架",
+          value: false,
+        },
+        {
+          label: "上架",
+          value: true,
+        }
+      ],
       importanceOptions: [
         {
           label: '婚礼',
